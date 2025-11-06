@@ -194,3 +194,83 @@ class IntelligentTutorApp:
               "Needs improvement. Review study material and retry."
         messagebox.showinfo("Quiz Completed",
                             f"Your Score: {score}%\n\n{msg}")
+    # ---------- Performance Tab ----------
+    def setup_performance_tab(self):
+        for widget in self.performance_tab.winfo_children():
+            widget.destroy()
+
+        ttk.Label(self.performance_tab, text="Performance Overview",
+                  font=("Segoe UI", 12, "bold")).pack(pady=10)
+
+        ttk.Button(self.performance_tab, text="Show Bar Chart", command=self.show_bar_chart).pack(pady=5)
+        ttk.Button(self.performance_tab, text="Show Pie Chart", command=self.show_pie_chart).pack(pady=5)
+        ttk.Button(self.performance_tab, text="Show Knowledge Graph", command=self.show_knowledge_graph).pack(pady=5)
+        ttk.Button(self.performance_tab, text="Show Recommendations", command=self.show_recommendations).pack(pady=5)
+
+    def show_bar_chart(self):
+        subjects = list(self.data.keys())
+        scores = [self.data[s]["score"] for s in subjects]
+        plt.figure(figsize=(6, 4))
+        plt.bar(subjects, scores)
+        plt.title("Performance by Subject")
+        plt.ylabel("Average Score (%)")
+        plt.xlabel("Subjects")
+        plt.ylim(0, 100)
+        plt.show()
+
+    def show_pie_chart(self):
+        subjects = list(self.data.keys())
+        scores = [max(self.data[s]["score"], 1) for s in subjects]  # avoid zero division
+        plt.figure(figsize=(5, 5))
+        plt.pie(scores, labels=subjects, autopct="%1.1f%%", startangle=90)
+        plt.title("Overall Knowledge Distribution")
+        plt.show()
+
+    def show_knowledge_graph(self):
+        G = nx.Graph()
+        for s, d in self.data.items():
+            G.add_node(s, score=d["score"])
+
+        G.add_edges_from([
+            ("AI Tools", "ADBMS"),
+            ("AI Tools", "Python Programming"),
+            ("ADBMS", "Python Programming")
+        ])
+
+        colors = []
+        for node in G.nodes(data=True):
+            sc = node[1]["score"]
+            if sc >= 80:
+                colors.append("green")
+            elif sc >= 50:
+                colors.append("orange")
+            else:
+                colors.append("red")
+
+        pos = nx.spring_layout(G)
+        nx.draw(G, pos, with_labels=True, node_color=colors, node_size=2000,
+                font_color="white", font_size=10, font_weight="bold")
+        plt.title("Knowledge Graph — Student Mastery Levels")
+        plt.show()
+
+    def show_recommendations(self):
+        msg = "Personalized Study Recommendations:\n\n"
+        for s, d in self.data.items():
+            score = d["score"]
+            if score >= 80:
+                rec = "Advance to complex topics or practical applications."
+            elif score >= 50:
+                rec = "Revise core concepts and practice medium-level exercises."
+            else:
+                rec = "Revisit basics and go through easier study material."
+            msg += f"{s}: {rec}\n"
+        messagebox.showinfo("Recommendations", msg)
+
+
+# ---------- Main Program ----------
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = IntelligentTutorApp(root)
+    show_splash(root)
+    app.setup_performance_tab()
+    root.mainloop()
