@@ -1,4 +1,4 @@
-# 🧠 Intelligent Tutoring System (AI & Python Editions)
+# 🧠 Intelligent Tutoring System 
 
 > An adaptive, AI-driven learning application built using **Python** and **Tkinter**, designed to personalize the student learning experience through intelligent feedback, quiz adaptation, and data-driven performance visualization.
 
